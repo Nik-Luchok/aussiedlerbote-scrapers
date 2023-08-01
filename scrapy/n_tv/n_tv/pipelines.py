@@ -8,6 +8,9 @@
 from itemadapter import ItemAdapter
 
 
-class NTvPipeline:
+class NtvArticleDefaultValuesPipeline:
     def process_item(self, item, spider):
+        for key, default_value in item.default_values.items():
+            item.setdefault(key, default_value)
+
         return item
