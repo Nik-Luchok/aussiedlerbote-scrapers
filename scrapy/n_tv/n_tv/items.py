@@ -62,13 +62,13 @@ class NtvArticle(scrapy.Item):
     # rubric, tags, keywords
     current_rubric_names = scrapy.Field()
     rubric_names = scrapy.Field()
+    keyword_names = scrapy.Field()
 
     # date/time
     updated = scrapy.Field()
     version_created = scrapy.Field()
     embargoed = scrapy.Field()
     dateline = scrapy.Field()
-    keyword_names = scrapy.Field()
  
     # textual data
     headline = scrapy.Field()

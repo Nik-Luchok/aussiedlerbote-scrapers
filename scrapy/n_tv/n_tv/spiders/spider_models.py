@@ -29,6 +29,7 @@ class NtvSitemapSpider(SitemapSpider):
                 )
                 return
 
+            # changed Sitemap class
             s = NtvSitemap(body)
             it = self.sitemap_filter(s)
 
