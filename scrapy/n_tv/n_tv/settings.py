@@ -64,6 +64,7 @@ DOWNLOAD_DELAY = 3
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    "n_tv.pipelines.NtvArticleDefaultValuesPipeline": 100,
+   "n_tv.pipelines.GeneratingArticleURNPipeline": 200,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

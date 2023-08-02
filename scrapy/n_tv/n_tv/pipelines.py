@@ -6,6 +6,8 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
+from hashlib import md5
 
 
 class NtvArticleDefaultValuesPipeline:
@@ -14,3 +16,22 @@ class NtvArticleDefaultValuesPipeline:
             item.setdefault(key, default_value)
 
         return item
+    
+
+class GeneratingArticleURNPipeline:
+    def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
+
+        headline = adapter.get('headline')
+        updated = adapter.get('updated')
+        url = adapter.get('updated')
+
+        if headline and updated:
+            concat_strs = headline + updated
+            # md5 gives stable hash for strings
+            adapter['urn'] = int(md5(concat_strs.encode('utf-8')).hexdigest(), 16)
+            return item
+        else:
+            raise DropItem(f"Missing headline or updated in {item}\n"
+                           f"URL: {url}")
+            
