@@ -1,3 +1,9 @@
+# local
+.vscode/
+*.sh
+*.json
+json_archive/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
