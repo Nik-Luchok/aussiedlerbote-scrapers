@@ -11,7 +11,7 @@ from n_tv.items import NtvArticle
 PROXY_KEY = os.environ.get('PROXY_KEY')
 PROXY_API_URL = os.environ.get('PROXY_API_URL')
 
-TODAY = 7
+TODAY = 8
 
 rubric = 'sport'
 

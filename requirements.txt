@@ -1,3 +1,2 @@
-requests
-beautifulsoup4
-lxml
+scrapy==2.9.0
+psycopg==3.1.9
