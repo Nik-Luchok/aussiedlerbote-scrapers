@@ -11,7 +11,7 @@ from n_tv.items import NtvArticle
 PROXY_KEY = os.environ.get('PROXY_KEY')
 PROXY_API_URL = os.environ.get('PROXY_API_URL')
 
-TODAY = 31
+TODAY = 7
 
 rubric = 'sport'
 
@@ -34,12 +34,17 @@ class NtvSportSpider(NtvSitemapSpider):
     def sitemap_filter(self, entries):
         ''''''
         for entry in entries:
-            date_time = datetime.strptime(
-                entry['news']['publication_date'],
-                '%Y-%m-%dT%H:%M:%S+02:00')
-            
+            # date filter
+            date_time = self._str_to_daytime(entry)
             if date_time.day == TODAY:
                 yield entry
+
+    @classmethod
+    def _str_to_daytime(cls, entry) -> datetime:
+        date_time = datetime.strptime(
+                        entry['news']['publication_date'],
+                        '%Y-%m-%dT%H:%M:%S+02:00')
+        return date_time
     
     def sport_parse(self, response):
         article = response.css("article.article")
@@ -60,6 +65,10 @@ class NtvSportSpider(NtvSitemapSpider):
         article_loader.add_value('url', response.url)
         article_loader.add_value('language', language)
 
+        # Quelle, sources
+        article_loader.add_css('creditline', "p.article__source::text")
+
+        
         # rubtic, keywords, tags
         article_loader.add_value('current_rubric_names', rubric)
         article_loader.add_value('rubric_names', rubric)
@@ -84,4 +93,47 @@ class NtvSportSpider(NtvSitemapSpider):
         article.css("interaction").drop()
         article.css("script").drop()
 
+
+class NotDpaSpider(NtvSitemapSpider):
+    name = "notdpaspider"
+    custom_settings = {
+        'ITEM_PIPELINES': {
+
+        },
+        'CONCURRENT_REQUESTS': 17
+
+    }
+
+    def sitemap_filter(self, entries):
+        ''''''
+        # added counter
+        self.counter = 0
+        for entry in entries:
+            # date filter
+            date_time = self._str_to_daytime(entry)
+            if date_time.day == TODAY:
+                self.counter += 1
+                yield entry
+
+    @classmethod
+    def _str_to_daytime(cls, entry) -> datetime:
+        date_time = datetime.strptime(
+                        entry['news']['publication_date'],
+                        '%Y-%m-%dT%H:%M:%S+02:00')
+        return date_time
+
+    def parse(self, response):
+        is_dpa = False
+        article = response.css("article.article")
+        quelle = article.css("p.article__source::text").get()
+        if quelle.find("dpa") != -1:
+            is_dpa = True
+
+        yield {
+            'url': response.url,
+            'total_articles': self.counter,
+            'quelle': quelle,
+            'is_dpa': is_dpa
+        }
+        
 

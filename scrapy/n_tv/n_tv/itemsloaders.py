@@ -9,8 +9,16 @@ class NtvArticleLoader(ItemLoader):
     kicker_in = MapCompose(str.strip)
     teaser_in = MapCompose(str.strip)
     article_html_in = MapCompose(strip_html5_whitespace, replace_escape_chars)
+    str.removeprefix
 
-    keyword_names_in = MapCompose(lambda x: x.split(sep=','), str.strip)
+    keyword_names_in = MapCompose(lambda x: x.split(sep=','), 
+                                  str.strip)
+    
+    creditline_in = MapCompose(lambda x: x.removeprefix('Quelle:'),
+                               lambda x: x.split(sep=','), 
+                               str.strip)
+
+    creditline_out = Identity()
     keyword_names_out = Identity()
     current_rubric_names_out = Identity()
     rubric_names_out = Identity()
