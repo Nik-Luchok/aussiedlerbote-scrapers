@@ -20,10 +20,7 @@ class DropDpaPipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
         for source in adapter['creditline']:
-            logging.debug("DEBUG--DEBUG")
-            logging.debug(source)
             if source.find("dpa") != -1:
-                logging.debug(True)
                 raise DropItem('dpa article')
         
         return item
@@ -53,13 +50,15 @@ class DuplicateOrUpdatedPipeline:
                         # if url hash found in db
                         article_hash_old = cursor.fetchone()['article_hash']
                         if str(article_hash_old).replace('-', '') == adapter['urn']:
+                            # if article hash equals value from db
                             raise DropItem("Duplicate")
+                        
                         logging.info("Article updated, sending updated article")
                         
-                        #  TODO mark that article updated
-                        # update 'version' += 1, 'updated' current time
-                        adapter['version'] += 1
+                        # set signal to 'sig:update'
+                        adapter['signal'] = 'sig:update'
 
+                    # update/set article hash in db
                     cursor.execute("""
                                     INSERT INTO article_hashes (url_hash, article_hash)
                                     VALUES (%s, %s);
@@ -76,21 +75,3 @@ class NtvArticleDefaultValuesPipeline:
             item.setdefault(key, default_value)
 
         return item
-    
-
-# class GeneratingArticleURNPipeline:
-#     def process_item(self, item, spider):
-#         adapter = ItemAdapter(item)
-
-#         article_html = adapter.get('article_html')
-#         url = adapter.get('url')
-
-#         if article_html:
-#             # md5 gives stable hash for strings
-#             adapter['urn'] = md5(article_html.encode('utf-8')).hexdigest()
-#             print(adapter['urn'], type(adapter['urn']))
-#             return item
-#         else:
-#             raise DropItem(f"Missing article_html in {item}\n"
-#                            f"URL: {url}")
-            
