@@ -69,7 +69,7 @@ class DuplicateOrUpdatedPipeline:
             raise DropItem(f"Missing article_html and url in {item}\n")
         
 
-class NtvArticleDefaultValuesPipeline:
+class DefaultValuesPipeline:
     def process_item(self, item, spider):
         for key, default_value in item.default_values.items():
             item.setdefault(key, default_value)

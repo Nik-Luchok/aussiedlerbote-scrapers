@@ -6,6 +6,19 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+# import os
+
+
+# SCRAPEOPS_API_KEY = os.environ.get('PROXY_KEY')
+
+# EXTENSIONS = {
+#    'scrapeops_scrapy.extension.ScrapeOpsMonitor': 500, 
+# }
+
+DOWNLOADER_MIDDLEWARES = {
+   # 'scrapeops_scrapy.middleware.retry.RetryMiddleware': 550,
+   'scrapy.downloadermiddlewares.retry.RetryMiddleware': 100,
+}
 
 BOT_NAME = "n_tv"
 
@@ -65,7 +78,7 @@ DOWNLOAD_DELAY = 3
 ITEM_PIPELINES = {
    "n_tv.pipelines.DropDpaPipeline": 100,
    "n_tv.pipelines.DuplicateOrUpdatedPipeline": 200,
-   "n_tv.pipelines.NtvArticleDefaultValuesPipeline": 300,
+   "n_tv.pipelines.DefaultValuesPipeline": 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
