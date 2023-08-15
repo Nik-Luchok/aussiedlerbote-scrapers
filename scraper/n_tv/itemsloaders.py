@@ -34,11 +34,17 @@ class NtvArticleLoader(BaseArticleLoader):
 
 
 class BildArticleLoader(BaseArticleLoader):
+    # in
     keyword_names_in = Compose(MapCompose(lambda x: x.split(sep=',')),
                                MapCompose(str.strip))
+    
     rubric_names_in = get_rubric_processor('https://www.bild.de/')
     current_rubric_names_in = get_rubric_processor('https://www.bild.de/')
 
+    teaser_in = Compose(MapCompose(str.strip),
+                        lambda x: ' '.join(x))
+
+    # out
     keyword_names_out = Compose(lambda x: set(x),
                                 lambda x: list(x),
                                 Identity())

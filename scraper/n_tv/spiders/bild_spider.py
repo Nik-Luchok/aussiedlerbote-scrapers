@@ -99,7 +99,12 @@ class BildRubricSpider(XMLFeedSpider):
         # textual data
         article_loader.add_css('headline', "span.article-title__headline::text")
         article_loader.add_css('kicker', "span.article-title__kicker::text")
-        article_loader.add_css('teaser', "div.article-body p b::text")
+
+        # TODO refactor
+        first_tag = article.css("div.article-body p:has(b)")[0]
+        article_loader.selector = first_tag
+        article_loader.add_css('teaser', "b::text")
+        article_loader.selector = article
 
         self._clean_article(article)
         article_loader.add_css('article_html', "div.article-body")
@@ -124,7 +129,7 @@ class BildRubricSpider(XMLFeedSpider):
         using drop() method of lxml tree elements. Learn more in lxml docs
         """
         # remove teaser
-        article.css("div.article-body p")[0].drop()
+        article.css("div.article-body p:has(b)")[0].drop()
         
         # remove all ads, recomendations
         article.css("div[data-ad-delivered]").drop()
