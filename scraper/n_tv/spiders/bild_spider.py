@@ -26,12 +26,13 @@ class BildRubricSpider(XMLFeedSpider):
         return "command" for spider to parce article url
         and for each to call a parce_article() function
         """
-        # sort out dpa and paid subscription articles 
-        if self._is_dpa_article(node):
+        # Filter. sort out rules
+        # TODO test when krieg ticker in sitemap.xml
+        if (    self._is_dpa_article(node)
+                or self._is_bild_plus_article(node)
+                or self._is_ukraine_krieg_ticker(node)):
             return None
         
-        if self._is_bild_plus_article(node):
-            return None
 
         # init item loader and save some metadata from rss feed to it
         article_loader = BildArticleLoader(item=DigitalWiresArticle(), selector=node)
@@ -69,6 +70,14 @@ class BildRubricSpider(XMLFeedSpider):
     def _is_bild_plus_article(cls, node) -> bool:
         link = node.xpath('link/text()').extract_first()
         if link.find('bild-plus') != -1:
+            return True
+        else:
+            return False
+        
+    @classmethod
+    def _is_ukraine_krieg_ticker(cls, node) -> bool:
+        link = node.xpath('link/text()').extract_first()
+        if link.find('ukraine-krieg-die-aktuelle-lage-im-live-ticker') != -1:
             return True
         else:
             return False
