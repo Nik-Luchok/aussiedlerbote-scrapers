@@ -33,8 +33,11 @@ class BildRubricSpider(XMLFeedSpider):
         if self._is_bild_plus_article(node):
             return None
 
-        # getting date and saving it to item through loader
+        # init item loader and save some metadata from rss feed to it
         article_loader = BildArticleLoader(item=DigitalWiresArticle(), selector=node)
+
+        # keywords
+        article_loader.add_xpath('keyword_names', 'category/text()')
 
         # date/time
         article_loader.add_xpath('dateline', 'pubDate/text()')
@@ -102,9 +105,6 @@ class BildRubricSpider(XMLFeedSpider):
         url = article_loader.get_collected_values('url')[0]
         article_loader.add_value('current_rubric_names', url)
         article_loader.add_value('rubric_names', url)
-        # TODO sometimes empty string (""). Create mechanism
-        # populate initially from <categoty> in sitemap.xml
-        # then compare/add absent values
         article_loader.add_value('keyword_names', keywords_str)
 
         return article_loader.load_item()
