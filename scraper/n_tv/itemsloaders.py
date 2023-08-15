@@ -1,9 +1,9 @@
 from scrapy.loader import ItemLoader
-from itemloaders.processors import MapCompose, TakeFirst, Identity
+from itemloaders.processors import MapCompose, TakeFirst, Identity, Compose
 from w3lib.html import replace_escape_chars, strip_html5_whitespace
 
 
-def get_rubric_processor(domain_url:str) -> MapCompose:
+def get_rubric_processor(domain_url: str) -> MapCompose:
     return MapCompose(lambda x: x.removeprefix(domain_url),
                       lambda x: x.split('/')[0])
 
@@ -34,10 +34,13 @@ class NtvArticleLoader(BaseArticleLoader):
 
 
 class BildArticleLoader(BaseArticleLoader):
-    keyword_names_in = MapCompose(lambda x: x.split(sep=','), 
-                                  str.strip)
-    
+    keyword_names_in = Compose(MapCompose(lambda x: x.split(sep=',')),
+                               MapCompose(str.strip))
     rubric_names_in = get_rubric_processor('https://www.bild.de/')
     current_rubric_names_in = get_rubric_processor('https://www.bild.de/')
+
+    keyword_names_out = Compose(lambda x: set(x),
+                                lambda x: list(x),
+                                Identity())
     
     
