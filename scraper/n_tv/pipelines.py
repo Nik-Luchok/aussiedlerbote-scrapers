@@ -12,6 +12,7 @@ from hashlib import md5
 from n_tv.config import DBConfig
 import psycopg
 from psycopg.rows import dict_row
+from psycopg import sql
 
 import logging
 
@@ -28,6 +29,7 @@ class DropDpaPipeline:
 
 class DuplicateOrUpdatedPipeline:
     def process_item(self, item, spider):
+        # TODO refactor
         adapter = ItemAdapter(item)
         article_html = adapter.get('article_html')
         url = adapter.get('url')
@@ -40,11 +42,17 @@ class DuplicateOrUpdatedPipeline:
             with psycopg.connect(**DBConfig.params) as conn:
                 with conn.cursor() as cursor:
                     cursor.row_factory = dict_row
-                    cursor.execute("""
-                                   SELECT *
-                                   FROM article_hashes
-                                   WHERE url_hash=%s;
-                                   """, (url_hash, ))
+
+                    # create dynamic sql query
+                    domain_name = spider.domain_name
+                    logging.warning(f"spider: {spider}, domain_name: {domain_name}")
+                    q = sql.SQL("""SELECT * 
+                                   FROM {domain_name_hashes_table} 
+                                   WHERE url_hash=%s;""").format(
+                                        domain_name_hashes_table=sql.Identifier(f"{domain_name}_article_hashes")
+                                        )
+
+                    cursor.execute(query=q, params=(url_hash, ))
                     
                     if cursor.rowcount:
                         # if url hash found in db
@@ -59,10 +67,13 @@ class DuplicateOrUpdatedPipeline:
                         adapter['signal'] = 'sig:update'
 
                     # update/set article hash in db
-                    cursor.execute("""
-                                    INSERT INTO article_hashes (url_hash, article_hash)
-                                    VALUES (%s, %s);
-                                    """, (url_hash, adapter['urn']))
+                    q = sql.SQL("""
+                                INSERT INTO {domain_name_hashes_table} (url_hash, article_hash)
+                                VALUES (%s, %s);
+                                """).format(
+                                    domain_name_hashes_table=sql.Identifier(f"{domain_name}_article_hashes")
+                                    )
+                    cursor.execute(query=q, params=(url_hash, adapter['urn']))
                     return item
 
         else:

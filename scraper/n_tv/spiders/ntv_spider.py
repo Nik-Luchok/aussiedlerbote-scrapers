@@ -8,13 +8,17 @@ from n_tv.items import DigitalWiresArticle
 
 # for local usage
 rubric = 'sport'
-TODAY = 8
+TODAY = 16
 
 
 class NtvRubricSpider(BaseSitemapSpider):
     name = 'ntvrubricspider'
     sitemap_urls = ['https://www.n-tv.de/news.xml']
     sitemap_rules = [(f'/{rubric}/', 'sport_parse')]
+    # custom property, used in Duplicates Pipeline
+    # to select the right table
+    # MUST be written for each spider
+    domain_name = 'n_tv'
 
     def sitemap_filter(self, entries):
         for entry in entries:
