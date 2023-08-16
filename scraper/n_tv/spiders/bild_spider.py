@@ -5,6 +5,7 @@ from n_tv.items import DigitalWiresArticle
 from scrapy.spiders import XMLFeedSpider
 
 import logging
+from n_tv.loggers import log_filtered_out_ticker
 
 
 class BildRubricSpider(XMLFeedSpider):
@@ -27,10 +28,9 @@ class BildRubricSpider(XMLFeedSpider):
         and for each to call a parce_article() function
         """
         # Filter. sort out rules
-        # TODO test when krieg ticker in sitemap.xml
         if (    self._is_dpa_article(node)
                 or self._is_bild_plus_article(node)
-                or self._is_ukraine_krieg_ticker(node)):
+                or self._is_live_ticker(node)):
             return None
         
 
@@ -75,9 +75,12 @@ class BildRubricSpider(XMLFeedSpider):
             return False
         
     @classmethod
-    def _is_ukraine_krieg_ticker(cls, node) -> bool:
+    def _is_live_ticker(cls, node) -> bool:
         link = node.xpath('link/text()').extract_first()
-        if link.find('ukraine-krieg-die-aktuelle-lage-im-live-ticker') != -1:
+        if link.find('ticker') != -1:
+            # DEBUG TODO remove when no longer needed
+            # or consider saving as usual working logs
+            log_filtered_out_ticker(domain='bild', url=link)
             return True
         else:
             return False
@@ -86,7 +89,6 @@ class BildRubricSpider(XMLFeedSpider):
         """
         Parce scraped article with css selectors. 
         Save data via ArticleLoader
-        
         """
         # save article item
         article = response.css("main.main-content article")
@@ -106,8 +108,8 @@ class BildRubricSpider(XMLFeedSpider):
         article_loader.add_css('teaser', "b::text")
         article_loader.selector = article
 
-        self._clean_article(article)
-        article_loader.add_css('article_html', "div.article-body")
+        # self._clean_article(article)
+        # article_loader.add_css('article_html', "div.article-body")
 
         # metadata
         article_loader.add_value('language', language)
