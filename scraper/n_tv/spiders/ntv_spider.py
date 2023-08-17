@@ -1,38 +1,26 @@
 
 from datetime import datetime
-import os
-from urllib.parse import urlencode
 
-from n_tv.spiders.spider_models import NtvSitemapSpider
+from n_tv.base_spiders import BaseSitemapSpider
 from n_tv.itemsloaders import NtvArticleLoader
-from n_tv.items import NtvArticle
+from n_tv.items import DigitalWiresArticle
 
 
-PROXY_KEY = os.environ.get('PROXY_KEY')
-PROXY_API_URL = os.environ.get('PROXY_API_URL')
-
-TODAY = 8
-
+# for local usage
 rubric = 'sport'
+TODAY = 16
 
 
-def get_proxy_url(url):
-    """Get proxy url leading to the website being scraped
-    param: url
-        url of the website to scrape
-    """
-    payload = {'api_key': PROXY_KEY, 'url': url}
-    proxy_url = PROXY_API_URL + urlencode(payload)
-    return proxy_url
-
-
-class NtvSportSpider(NtvSitemapSpider):
-    name = 'ntvsportspider'
+class NtvRubricSpider(BaseSitemapSpider):
+    name = 'ntvrubricspider'
     sitemap_urls = ['https://www.n-tv.de/news.xml']
     sitemap_rules = [(f'/{rubric}/', 'sport_parse')]
+    # custom property, used in Duplicates Pipeline
+    # to select the right table
+    # MUST be written for each spider
+    domain_name = 'n_tv'
 
     def sitemap_filter(self, entries):
-        ''''''
         for entry in entries:
             # date filter
             date_time = self._str_to_daytime(entry)
@@ -53,7 +41,7 @@ class NtvSportSpider(NtvSitemapSpider):
         keywords_str = response.css("[name='keywords']::attr('content')").get()
         
         # textual data
-        article_loader = NtvArticleLoader(item=NtvArticle(), selector=article)
+        article_loader = NtvArticleLoader(item=DigitalWiresArticle(), selector=article)
 
         article_loader.add_css('teaser', "div.article__text p strong::text")
         article_loader.add_css('headline', "span.article__headline::text")
@@ -67,8 +55,7 @@ class NtvSportSpider(NtvSitemapSpider):
 
         # Quelle, sources
         article_loader.add_css('creditline', "p.article__source::text")
-
-        
+  
         # rubtic, keywords, tags
         article_loader.add_value('current_rubric_names', rubric)
         article_loader.add_value('rubric_names', rubric)
@@ -84,6 +71,7 @@ class NtvSportSpider(NtvSitemapSpider):
   
     def _clean_article(self, article) -> None:
         # remove teaser tag from HTML DOM
+        # TODO debug empty place in result html in place of dropped element
         article.css("div.article__text p")[0].drop()
         
         # remove side article__aside
@@ -94,8 +82,9 @@ class NtvSportSpider(NtvSitemapSpider):
         article.css("script").drop()
 
 
-class NotDpaSpider(NtvSitemapSpider):
+class NotDpaSpider(BaseSitemapSpider):
     name = "notdpaspider"
+    sitemap_urls = ['https://www.n-tv.de/news.xml']
     custom_settings = {
         'ITEM_PIPELINES': {
 

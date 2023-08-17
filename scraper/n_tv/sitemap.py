@@ -1,7 +1,7 @@
 from scrapy.utils.sitemap import Sitemap
 
 
-class NtvSitemap(Sitemap):
+class TreeSitemap(Sitemap):
     # must change iter logic, to get the children of news tag
     # to be able to apply filter by upload_date or other metadata
     # TODO refactor

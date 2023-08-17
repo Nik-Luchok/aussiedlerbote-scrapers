@@ -8,7 +8,7 @@ format_function = format
 type_obj = type
 
 
-class NtvArticle(scrapy.Item):
+class DigitalWiresArticle(scrapy.Item):
     default_values = {
         "format": "digitalwires@0.8.0",
         "type": "composite",
@@ -31,7 +31,7 @@ class NtvArticle(scrapy.Item):
         "article_html": None,
         "infobox_html": None,
         "linkbox_html": None,
-        "creditline": "ntv",
+        "creditline": [],
         "copyrightnotice": None,
         "usageterms": None,
         "autopublishnotice": None,
@@ -75,6 +75,7 @@ class NtvArticle(scrapy.Item):
     kicker = scrapy.Field()
     teaser = scrapy.Field()
     article_html = scrapy.Field()
+    
     # may be null
     subhead = scrapy.Field()
     byline = scrapy.Field()
