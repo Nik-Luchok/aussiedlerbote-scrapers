@@ -10,14 +10,13 @@ from n_tv.loggers import log_filtered_out_ticker
 
 class BildRubricSpider(XMLFeedSpider):
     name = 'bildrubricspider'
-    custom_settings = {
-        'ITEM_PIPELINES': {
-            'n_tv.pipelines.DefaultValuesPipeline': 100
-        },
-        'CONCURRENT_REQUESTS': 1
-    }
     start_urls = ['https://www.bild.de/sitemap.xml']
     itertag = 'item'
+    
+    # custom property, used in Duplicates Pipeline
+    # to select the right table
+    # MUST be written for each spider
+    domain_name = 'bild'
     
     def parse_node(self, response, node):
         """
@@ -108,8 +107,8 @@ class BildRubricSpider(XMLFeedSpider):
         article_loader.add_css('teaser', "b::text")
         article_loader.selector = article
 
-        # self._clean_article(article)
-        # article_loader.add_css('article_html', "div.article-body")
+        self._clean_article(article)
+        article_loader.add_css('article_html', "div.article-body")
 
         # metadata
         article_loader.add_value('language', language)
