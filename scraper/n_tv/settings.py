@@ -76,9 +76,11 @@ DOWNLOAD_DELAY = 3
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   "n_tv.pipelines.DropDpaPipeline": 100,
-   "n_tv.pipelines.DuplicateOrUpdatedPipeline": 200,
-   "n_tv.pipelines.DefaultValuesPipeline": 300,
+   "n_tv.pipelines.DefaultValuesPipeline": 100,
+   "n_tv.pipelines.DropDpaPipeline": 200,
+   "n_tv.pipelines.DuplicateOrUpdatedPipeline": 300,
+
+
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
